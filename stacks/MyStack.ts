@@ -66,6 +66,24 @@ export function IAM({ app, stack }: StackContext) {
             }),
           ],
         }),
+        Boto3Policy: new iam.PolicyDocument({
+          assignSids: true,
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'dynamodb:Scan',
+                'dynamodb:GetItem',
+                'dynamodb:PutItem',
+                'dynamodb:DeleteItem',
+                'dynamodb:UpdateItem'
+              ],
+              resources: [
+                '*',
+              ],
+            }),
+          ],
+        }),
       },
     });
   }
