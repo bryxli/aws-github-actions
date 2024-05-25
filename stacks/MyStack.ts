@@ -66,6 +66,19 @@ export function IAM({ app, stack }: StackContext) {
             }),
           ],
         }),
+      },
+    });
+
+    new iam.Role(stack, 'GitHubActionsApplicationRole', {
+      assumedBy: new iam.OpenIdConnectPrincipal(provider).withConditions({
+        StringLike: {
+          'token.actions.githubusercontent.com:sub': `repo:${organization}/${repository}:*`,
+        },
+      }),
+      description: 'Role assumed for running applications from GitHub CI using AWS CDK',
+      roleName: 'GitHub-App', // Change this to match the role name in the GitHub workflow file
+      maxSessionDuration: Duration.hours(1),
+      inlinePolicies: { // You could attach AdministratorAccess here or constrain it even more, but this uses more granular permissions used by SST
         Boto3Policy: new iam.PolicyDocument({
           assignSids: true,
           statements: [
