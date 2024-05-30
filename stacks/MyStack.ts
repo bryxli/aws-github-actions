@@ -10,19 +10,16 @@ export function IAM({ app, stack }: StackContext) {
       clientIds: ['sts.amazonaws.com'],
     });
 
-    const organization = ''; // Use your GitHub organization
-    const repository = ''; // Use your GitHub repository
-
-    new iam.Role(stack, 'GitHubActionsRole', {
+    new iam.Role(stack, 'ZoeBotActions', {
       assumedBy: new iam.OpenIdConnectPrincipal(provider).withConditions({
         StringLike: {
-          'token.actions.githubusercontent.com:sub': `repo:${organization}/${repository}:*`,
+          'token.actions.githubusercontent.com:sub': 'repo:bryxli/zoe-bot:*',
         },
       }),
-      description: 'Role assumed for deploying from GitHub CI using AWS CDK',
-      roleName: 'GitHub', // Change this to match the role name in the GitHub workflow file
+      description: 'Zoe bot role for deploying from GitHub CI using SST',
+      roleName: 'ZoeBotActions',
       maxSessionDuration: Duration.hours(1),
-      inlinePolicies: { // You could attach AdministratorAccess here or constrain it even more, but this uses more granular permissions used by SST
+      inlinePolicies: {
         SSTDeploymentPolicy: new iam.PolicyDocument({
           assignSids: true,
           statements: [
@@ -69,16 +66,16 @@ export function IAM({ app, stack }: StackContext) {
       },
     });
 
-    new iam.Role(stack, 'GitHubActionsApplicationRole', {
+    new iam.Role(stack, 'ZoeBotApplication', {
       assumedBy: new iam.OpenIdConnectPrincipal(provider).withConditions({
         StringLike: {
-          'token.actions.githubusercontent.com:sub': `repo:${organization}/${repository}:*`,
+          'token.actions.githubusercontent.com:sub': 'repo:bryxli/zoe-bot:*',
         },
       }),
-      description: 'Role assumed for running applications from GitHub CI using AWS CDK',
-      roleName: 'GitHub-App', // Change this to match the role name in the GitHub workflow file
+      description: 'Zoe bot role for application permissions',
+      roleName: 'ZoeBotApplication',
       maxSessionDuration: Duration.hours(1),
-      inlinePolicies: { // You could attach AdministratorAccess here or constrain it even more, but this uses more granular permissions used by SST
+      inlinePolicies: {
         Boto3Policy: new iam.PolicyDocument({
           assignSids: true,
           statements: [
